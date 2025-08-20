@@ -21,7 +21,7 @@ import schedule
 
 TELEGRAM_BOT_TOKEN = os.getenv(
     "TELEGRAM_BOT_TOKEN",
-    "7234182173"
+    "7234182173:AAHqHVhrFK6Z4O6lZMk7XdYbKZiOPlF7BFQ"
 )
 TELEGRAM_CHAT_ID = os.getenv(
     "TELEGRAM_CHAT_ID",
@@ -218,7 +218,7 @@ def build_message(product: Dict, category_name: str) -> str:
 
 def validate_config() -> bool:
     ok = True
-    if not TELEGRAM_BOT_TOKEN or "7234182173" in TELEGRAM_BOT_TOKEN:
+    if not TELEGRAM_BOT_TOKEN or "7234182173:AAHqHVhrFK6Z4O6lZMk7XdYbKZiOPlF7BFQ" in TELEGRAM_BOT_TOKEN:
         logging.error("Please set a valid TELEGRAM_BOT_TOKEN.")
         ok = False
     if not TELEGRAM_CHAT_ID or "1402152106" in str(TELEGRAM_CHAT_ID):
