@@ -1,3 +1,4 @@
+
 #!/usr/bin/env python3
 # amazon_price_tracker_bot.py
 # One-file Amazon category price tracker with Telegram alerts + affiliate links.
@@ -5,7 +6,6 @@
 
 import os
 import time
-import json
 import logging
 from datetime import datetime
 from typing import List, Dict, Optional
@@ -19,8 +19,14 @@ import schedule
 # ==== USER SETTINGS ======
 # =========================
 
-TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "7234182173:AAHqHVhrFK6Z4O6lZMk7XdYbKZiOPlF7BFQ")
-TELEGRAM_CHAT_ID   = os.getenv("TELEGRAM_CHAT_ID",   "@lootproductsofficial")  # e.g., 123456789
+TELEGRAM_BOT_TOKEN = os.getenv(
+    "TELEGRAM_BOT_TOKEN",
+    "7234182173:AAHqHVhrFK6Z4O6lZMk7XdYbKZiOPlF7BFQ"
+)
+TELEGRAM_CHAT_ID = os.getenv(
+    "TELEGRAM_CHAT_ID",
+    "@lootproductsofficial"  # e.g., 123456789 or channel username
+)
 AMAZON_AFFILIATE_TAG = os.getenv("AMAZON_AFFILIATE_TAG", "welldecore-21")
 
 # Price filter
@@ -36,11 +42,10 @@ CHECK_INTERVAL_MIN = int(os.getenv("CHECK_INTERVAL_MIN", 5))
 
 # Categories: put your preferred Amazon search/category URLs here (India site shown)
 CATEGORIES: Dict[str, str] = {
-    # Enable/disable by commenting/uncommenting lines below:
-    "mobiles":      "https://amzn.to/4fJChj3",
-    "accessories":  "https://amzn.to/41eAsEU",
-    "home":         "https://amzn.to/45rKAwC",
-    "watches" :     "https://amzn.to/4lEzWHD"
+    "mobiles": "https://amzn.to/4fJChj3",
+    "accessories": "https://amzn.to/41eAsEU",
+    "home": "https://amzn.to/45rKAwC",
+    "watches": "https://amzn.to/4lEzWHD"
 }
 
 # HTTP headers to reduce blocking
@@ -71,9 +76,7 @@ def normalize_price(text: str) -> Optional[float]:
         return None
     try:
         t = text.replace("₹", "").replace(",", "").strip()
-        # Some pages show prices like '1,29900' (rare) — handle basic decimal
         if t.count(".") > 1:
-            # Fallback: remove all dots except last
             parts = t.split(".")
             t = "".join(parts[:-1]) + "." + parts[-1]
         return float(t)
@@ -83,14 +86,12 @@ def normalize_price(text: str) -> Optional[float]:
 
 def parse_price_from_listing(item) -> Optional[float]:
     """Extract current price on search results card."""
-    # 1) span.a-offscreen typically holds the visible price (e.g., ₹899.00)
     offscreen = item.find("span", class_="a-offscreen")
     if offscreen and offscreen.text:
         p = normalize_price(offscreen.text)
         if p is not None:
             return p
 
-    # 2) Fallback: a-price-whole + a-price-fraction
     whole = item.find("span", class_="a-price-whole")
     if whole and whole.get_text(strip=True):
         s = whole.get_text(strip=True).replace(",", "")
@@ -107,7 +108,6 @@ def parse_price_from_listing(item) -> Optional[float]:
 
 def parse_mrp_from_listing(item) -> Optional[float]:
     """Extract strike-through MRP if present to compute discount."""
-    # Often in span.a-text-price > span.a-offscreen
     strike = item.find("span", class_="a-text-price")
     if strike:
         off = strike.find("span", class_="a-offscreen")
@@ -143,7 +143,7 @@ def fetch_category_products(category_url: str, max_items: int = 12) -> List[Dict
             if price is None:
                 continue
 
-            mrp = parse_mrp_from_listing(it)  # may be None
+            mrp = parse_mrp_from_listing(it)
 
             entry = {
                 "title": title,
@@ -153,19 +153,16 @@ def fetch_category_products(category_url: str, max_items: int = 12) -> List[Dict
                 "high_alert": False
             }
 
-            # Mark as high alert if we can compute 80–95% off
             if mrp and mrp > 0:
                 discount = (mrp - price) / mrp * 100.0
                 if MEGA_MIN <= discount <= MEGA_MAX:
                     entry["high_alert"] = True
                     entry["discount"] = discount
 
-            # We push BOTH: in-range items OR high-alerts
             if (MIN_PRICE <= price <= MAX_PRICE) or entry["high_alert"]:
                 products.append(entry)
 
         except Exception:
-            # Robust to minor HTML changes
             continue
 
     return products
@@ -182,14 +179,13 @@ def affiliate(url: str) -> str:
 
 
 def build_message(product: Dict, category_name: str) -> str:
-    """Build a human-readable message without Markdown (avoid parse quirks)."""
+    """Build a human-readable message."""
     ts = datetime.now().strftime("%d-%b-%Y %H:%M")
     title = product.get("title", "Product")
     price = product.get("price")
     mrp = product.get("mrp")
     link = affiliate(product.get("link", ""))
 
-    # High alert format
     if product.get("high_alert") and mrp:
         discount = product.get("discount")
         lines = [
@@ -205,7 +201,6 @@ def build_message(product: Dict, category_name: str) -> str:
         ]
         return "\n".join(lines)
 
-    # Normal deal format
     mrp_part = f" (MRP: ₹{int(mrp)})" if mrp else ""
     lines = [
         f"📢 {category_name.upper()} Deal ({ts})",
@@ -223,14 +218,14 @@ def build_message(product: Dict, category_name: str) -> str:
 
 def validate_config() -> bool:
     ok = True
-    if not TELEGRAM_BOT_TOKEN or "723418217AAHqHVhrFK6Z4O6lZMk7XdYbKZiOPlF7BFQ" in TELEGRAM_BOT_TOKEN:
-        logging.error("Please set TELEGRAM_BOT_TOKEN.")
+    if not TELEGRAM_BOT_TOKEN or "7234182173" in TELEGRAM_BOT_TOKEN:
+        logging.error("Please set a valid TELEGRAM_BOT_TOKEN.")
         ok = False
     if not TELEGRAM_CHAT_ID or "@lootproductsofficial" in str(TELEGRAM_CHAT_ID):
-        logging.error("@lootproductsofficial ")
+        logging.error("Please set TELEGRAM_CHAT_ID (your chat or channel).")
         ok = False
     if not AMAZON_AFFILIATE_TAG or AMAZON_AFFILIATE_TAG == "welldecore-21":
-        logging.warning("Using default affiliate tag. Replace AMAZON_AFFILIATE_TAG for your account.")
+        logging.warning("Using default affiliate tag. Replace with your own AMAZON_AFFILIATE_TAG.")
     if not CATEGORIES:
         logging.error("No categories defined. Fill CATEGORIES dict.")
         ok = False
@@ -245,9 +240,9 @@ def run_check(bot: Bot) -> None:
             for p in products:
                 msg = build_message(p, name)
                 try:
-                    bot.send_message(chat_id=@lootproductsofficial, text=msg)
+                    bot.send_message(chat_id=TELEGRAM_CHAT_ID, text=msg)
                     sent += 1
-                    time.sleep(0.6)  # gentle pacing
+                    time.sleep(0.6)
                 except Exception as e:
                     logging.warning(f"Telegram send failed: {e}")
         except Exception as e:
@@ -259,18 +254,15 @@ def main():
     if not validate_config():
         return
 
-    bot = Bot(token=7234182173:AAHqHVhrFK6Z4O6lZMk7XdYbKZiOPlF7BFQ)
+    bot = Bot(token=TELEGRAM_BOT_TOKEN)
 
-    # Send startup ping
     try:
-        bot.send_message(chat_id=@lootproductsofficial, text="🤖 Bot started. Monitoring categories…")
+        bot.send_message(chat_id=TELEGRAM_CHAT_ID, text="🤖 Bot started. Monitoring categories…")
     except Exception as e:
         logging.error(f"Failed to send startup message: {e}")
 
-    # Run once on start
     run_check(bot)
 
-    # Schedule periodic checks
     schedule.every(CHECK_INTERVAL_MIN).minutes.do(run_check, bot=bot)
 
     while True:
