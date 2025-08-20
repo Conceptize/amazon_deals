@@ -25,7 +25,7 @@ TELEGRAM_BOT_TOKEN = os.getenv(
 )
 TELEGRAM_CHAT_ID = os.getenv(
     "TELEGRAM_CHAT_ID",
-    "@lootproductsofficial"  # e.g., 123456789 or channel username
+    "1402152106"  # e.g., 123456789 or channel username
 )
 AMAZON_AFFILIATE_TAG = os.getenv("AMAZON_AFFILIATE_TAG", "welldecore-21")
 
@@ -221,7 +221,7 @@ def validate_config() -> bool:
     if not TELEGRAM_BOT_TOKEN or "7234182173" in TELEGRAM_BOT_TOKEN:
         logging.error("Please set a valid TELEGRAM_BOT_TOKEN.")
         ok = False
-    if not TELEGRAM_CHAT_ID or "@lootproductsofficial" in str(TELEGRAM_CHAT_ID):
+    if not TELEGRAM_CHAT_ID or "1402152106" in str(TELEGRAM_CHAT_ID):
         logging.error("Please set TELEGRAM_CHAT_ID (your chat or channel).")
         ok = False
     if not AMAZON_AFFILIATE_TAG or AMAZON_AFFILIATE_TAG == "welldecore-21":
