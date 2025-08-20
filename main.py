@@ -21,7 +21,7 @@ import schedule
 
 TELEGRAM_BOT_TOKEN = os.getenv(
     "TELEGRAM_BOT_TOKEN",
-    "7234182173:AAHqHVhrFK6Z4O6lZMk7XdYbKZiOPlF7BFQ"
+    "7234182173"
 )
 TELEGRAM_CHAT_ID = os.getenv(
     "TELEGRAM_CHAT_ID",
@@ -38,7 +38,7 @@ MEGA_MIN = 80.0
 MEGA_MAX = 95.0
 
 # Check interval in minutes
-CHECK_INTERVAL_MIN = int(os.getenv("CHECK_INTERVAL_MIN", 5))
+CHECK_INTERVAL_MIN = int(os.getenv("CHECK_INTERVAL_MIN", 3))
 
 # Categories: put your preferred Amazon search/category URLs here (India site shown)
 CATEGORIES: Dict[str, str] = {
