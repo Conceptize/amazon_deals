@@ -223,13 +223,13 @@ def build_message(product: Dict, category_name: str) -> str:
 
 def validate_config() -> bool:
     ok = True
-    if not TELEGRAM_BOT_TOKEN or "REPLACE_WITH" in TELEGRAM_BOT_TOKEN:
+    if not TELEGRAM_BOT_TOKEN or "723418217AAHqHVhrFK6Z4O6lZMk7XdYbKZiOPlF7BFQ" in TELEGRAM_BOT_TOKEN:
         logging.error("Please set TELEGRAM_BOT_TOKEN.")
         ok = False
-    if not TELEGRAM_CHAT_ID or "REPLACE_WITH" in str(TELEGRAM_CHAT_ID):
-        logging.error("Please set TELEGRAM_CHAT_ID.")
+    if not TELEGRAM_CHAT_ID or "@lootproductsofficial" in str(TELEGRAM_CHAT_ID):
+        logging.error("@lootproductsofficial ")
         ok = False
-    if not AMAZON_AFFILIATE_TAG or AMAZON_AFFILIATE_TAG == "yourtag-21":
+    if not AMAZON_AFFILIATE_TAG or AMAZON_AFFILIATE_TAG == "welldecore-21":
         logging.warning("Using default affiliate tag. Replace AMAZON_AFFILIATE_TAG for your account.")
     if not CATEGORIES:
         logging.error("No categories defined. Fill CATEGORIES dict.")
@@ -245,7 +245,7 @@ def run_check(bot: Bot) -> None:
             for p in products:
                 msg = build_message(p, name)
                 try:
-                    bot.send_message(chat_id=TELEGRAM_CHAT_ID, text=msg)
+                    bot.send_message(chat_id=@lootproductsofficial, text=msg)
                     sent += 1
                     time.sleep(0.6)  # gentle pacing
                 except Exception as e:
@@ -259,11 +259,11 @@ def main():
     if not validate_config():
         return
 
-    bot = Bot(token=TELEGRAM_BOT_TOKEN)
+    bot = Bot(token=7234182173:AAHqHVhrFK6Z4O6lZMk7XdYbKZiOPlF7BFQ)
 
     # Send startup ping
     try:
-        bot.send_message(chat_id=TELEGRAM_CHAT_ID, text="🤖 Bot started. Monitoring categories…")
+        bot.send_message(chat_id=@lootproductsofficial, text="🤖 Bot started. Monitoring categories…")
     except Exception as e:
         logging.error(f"Failed to send startup message: {e}")
 
@@ -275,7 +275,7 @@ def main():
 
     while True:
         schedule.run_pending()
-        time.sleep(5)
+        time.sleep(2)
 
 
 if __name__ == "__main__":
